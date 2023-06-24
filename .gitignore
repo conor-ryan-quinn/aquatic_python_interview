@@ -9,3 +9,4 @@ miniconda.sh
 venv
 .DS_Store*
 oryx-build-commands.txt
+pyrightconfig.json

@@ -29,7 +29,7 @@ $(DEPS): environment.yml $(PYTHON)
 	echo "Installing dependencies..."
 	rm -rf $(VENV)
 	$(MAMBA) create --quiet --yes -p $(VENV)
-	$(MAMBA) install --quiet --yes -p $(VENV) -f environment.yml
+	$(MAMBA) install --yes -p $(VENV) -f environment.yml
 	cp environment.yml $(DEPS)
 
 .PHONY: deps
