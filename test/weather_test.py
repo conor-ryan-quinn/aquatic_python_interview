@@ -37,7 +37,7 @@ TEST_INPUT_SPEC = pd.DataFrame(DATA_SPEC, columns=DF_COLUMNS)
 # result in the min temp for a given day being the same as the
 # first temp and max temp same as last temp
 def test_with_ascending_data():
-    result_asc = weather.transform_df(TEST_INPUT_ASC)
+    result_asc = weather.transform_df_batch(np.array_split(TEST_INPUT_ASC, 10))
     random_row_number = random.randint(0, len(result_asc.index) - 1)
 
     min_temp = result_asc.iloc[random_row_number]["Min Temp"]
@@ -52,7 +52,8 @@ def test_with_ascending_data():
 # result in the max temp for a given day being the same as the
 # first temp and min temp same as last temp
 def test_with_descending_data():
-    result_desc = weather.transform_df(TEST_INPUT_DESC)
+    result_desc = weather.transform_df_batch(
+        np.array_split(TEST_INPUT_DESC, 10))
     random_row_number = random.randint(0, len(result_desc.index) - 1)
 
     min_temp = result_desc.iloc[random_row_number]["Min Temp"]
@@ -65,7 +66,7 @@ def test_with_descending_data():
 
 # Test that aggregations as expected for specific sample input
 def test_expected_values_single_day():
-    result = weather.transform_df(TEST_INPUT_SPEC)
+    result = weather.transform_df_batch(np.array_split(TEST_INPUT_SPEC, 10))
 
     expected_min = min(TEMPS_SPEC)
     expected_max = max(TEMPS_SPEC)
@@ -87,7 +88,7 @@ def test_expected_values_single_day():
 
 # Make sure dataframe contains only floats
 def test_expected_output_type():
-    result = weather.transform_df(TEST_INPUT_SPEC)
+    result = weather.transform_df_batch([TEST_INPUT_SPEC])
     assert (
         isinstance(result.iloc[0][weather.MIN_COL_NAME], np.floating)
         and isinstance(result.iloc[0][weather.MAX_COL_NAME], np.floating)
@@ -116,3 +117,11 @@ def test_output_shape():
     print(TARGET_OUTPUT_COLS)
     assert writer.getvalue()[:EXPECTED_HEADER_LEN].split(",")\
         == TARGET_OUTPUT_COLS
+
+
+# Process csv in batches and all at once
+# Make sure result dfs are equal
+def test_batched_equals_non_batced():
+    batched = weather.transform_df_batch(np.array_split(TEST_INPUT_ASC, 10))
+    non_batched = weather.transform_df(TEST_INPUT_ASC)
+    return batched.equals(non_batched)
